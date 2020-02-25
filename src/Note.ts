@@ -1,15 +1,26 @@
+import LStorage from './LStorage';
+
 export interface Vector {
   x: number;
   y: number;
+}
+
+export interface NoteData {
+  id?: string;
+  text?: string;
+  position?: Vector;
+  size?: Vector;
+  color?: string;
 }
 
 class Note {
 
   noteElement: HTMLElement;
   resizingElement: HTMLElement;
+  textArea: HTMLTextAreaElement;
   isDragging: boolean = false;
   isEditing: boolean = false;
-  currentDroppable: HTMLElement | null = null
+  currentDroppable: HTMLElement | null = null;
   colors = [
     '#bfff25',
     '#0cffc6',
@@ -20,16 +31,30 @@ class Note {
     '#69ff72',
     '#c9fff6',
     '#bbbeff',
+    '#fcfeff',
   ];
+  store: LStorage;
+  color: string;
+  position: Vector;
+  size: Vector;
 
   constructor(
-    public text: string,
     public parentElement: HTMLElement,
-    public onDragSet: (isDraggeable: boolean) => void
+    public onDragSet: (isDraggeable: boolean) => void,
+    public text: string = '',
+    public id: string = `f${(+new Date).toString(16)+Math.random()}`,
+    color?: string
   ) {
+    this.store = LStorage.getInstance();
     this.noteElement = document.createElement('div');
     this.noteElement.classList.add('note');
-    this.noteElement.style.backgroundColor = this.colors[Math.floor(Math.random() * 10)];
+
+    const rand = Math.floor(Math.random() * 10);
+    this.color = this.colors[rand];
+    if (color)
+      this.color = color;
+
+    this.noteElement.style.backgroundColor = this.color;
     this.noteElement.innerHTML = `
         <div class="note-inner">
             <textarea class="text" placeholder="Your text here">${this.text}</textarea>
@@ -37,13 +62,17 @@ class Note {
         <span class="resize"></span>
     `;
 
+    this.textArea = this.noteElement.querySelector('.text');
+
     this.resizeNoteHandler = this.resizeNoteHandler.bind(this);
+    this.textInputHandler = this.textInputHandler.bind(this);
     this.moveNote = this.moveNote.bind(this);
 
     this.parentElement.appendChild(this.noteElement);
     this.resizingElement = this.noteElement.querySelector('.resize') as HTMLElement;
     this.resizingElement.addEventListener('mousedown', this.resizeNoteHandler);
     this.noteElement.addEventListener('mousedown', this.moveNote);
+    this.textArea.addEventListener('keyup', this.textInputHandler);
   }
 
   moveNote(event: MouseEvent) {
@@ -138,19 +167,42 @@ class Note {
     this.noteElement.addEventListener('mousedown', this.moveNote);
   }
 
+  textInputHandler(event: InputEvent) {
+    this.text = (event.target as HTMLTextAreaElement).value;
+    this.store.updateNote(this.getNoteData());
+  }
+
   setPosition(position: Vector) {
+    this.position = position;
     this.noteElement.style.left = position.x + 'px';
     this.noteElement.style.top = position.y + 'px';
+    this.store.updateNote(this.getNoteData());
   };
 
   setSize(size: Vector) {
+    this.size = size;
     this.noteElement.style.width = size.x + 'px';
     this.noteElement.style.height = size.y + 'px';
+    this.store.updateNote(this.getNoteData());
   }
 
   removeNote() {
+    this.store.removeNote(this.id);
     this.resizingElement.removeEventListener('mousedown', this.resizeNoteHandler);
     this.parentElement.removeChild(this.noteElement);
+  }
+
+  getNoteData(): NoteData {
+    return {
+      id: this.id,
+      color: this.color,
+      position: this.position,
+      size: {
+        x: this.noteElement.offsetWidth,
+        y: this.noteElement.offsetHeight,
+      },
+      text: this.text
+    }
   }
 }
 

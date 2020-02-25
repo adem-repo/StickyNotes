@@ -1,22 +1,19 @@
-import Note from './Note';
-
-document.addEventListener('DOMContentLoaded', main);
-
-interface XYPosition {
-  x: number;
-  y: number;
-}
+import Note, { NoteData } from './Note';
+import LStorage from './LStorage';
 
 class StickyNotes {
 
   notesZone: HTMLElement;
   trashZone: HTMLElement;
+  store: LStorage;
   isDragging: boolean = false;
   isEditing: boolean = false;
 
   constructor(public canvas: HTMLElement) {
     this.notesZone = canvas.querySelector('#notes-zone') as HTMLElement;
     this.trashZone = canvas.querySelector('#trash-zone') as HTMLElement;
+
+    this.store = new LStorage();
 
     this.addNote = this.addNote.bind(this);
 
@@ -25,20 +22,36 @@ class StickyNotes {
         if (this.isDragging)
           return;
         if (!(event.target as HTMLElement).closest('.note'))
-          this.addNote({ x: event.x, y: event.y })
+          this.addNote({
+            position: { x: event.x, y: event.y }
+          }, (note) => this.store.addNote(note.getNoteData()))
       }
     });
 
     this.onDragSet = this.onDragSet.bind(this);
+
+    this.setNotesFromStorage();
   }
 
-  addNote(pos: XYPosition) {
-    const note = new Note('Some text', this.notesZone, this.onDragSet);
-    const noteElement = note.noteElement;
+  setNotesFromStorage() {
+    const notes = this.store.getNotes();
+    notes.forEach(noteData => {
+      this.addNote(noteData, note => note.setSize(noteData.size));
+    })
+  }
+
+  addNote(noteData: NoteData, cb?: (note: Note) => void) {
+    const note = new Note(
+      this.notesZone,
+      this.onDragSet,
+      noteData.text,
+      noteData.id,
+      noteData.color);
     note.setPosition({
-      x: pos.x - noteElement.offsetWidth / 2,
-      y: pos.y - noteElement.offsetHeight / 2
+      x: noteData.position.x,
+      y: noteData.position.y
     });
+    cb && cb(note);
   }
 
   onDragSet(isDragging: boolean) {
@@ -50,3 +63,5 @@ function main() {
   const canvas: HTMLElement = document.querySelector('#canvas') as HTMLInputElement;
   new StickyNotes(canvas);
 }
+
+document.addEventListener('DOMContentLoaded', main);
