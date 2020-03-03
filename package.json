@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "browser-sync": "^2.26.7",
     "ts-loader": "^6.2.1",
     "typescript": "^3.8.2"
   },
@@ -46,7 +47,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "cross-env TS_NODE_PROJECT=\"tsconfig.json\" webpack --watch"
   },
-  "author": "",
+  "author": "Alexander Dementyev",
   "license": "ISC",
-  "description": ""
+  "description": "Sticky Notes App"
 }

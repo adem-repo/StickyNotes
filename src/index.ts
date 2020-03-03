@@ -1,3 +1,4 @@
+'use strict';
 import Note, { NoteData } from './Note';
 import LStorage from './LStorage';
 
@@ -7,7 +8,6 @@ class StickyNotes {
   trashZone: HTMLElement;
   store: LStorage;
   isDragging: boolean = false;
-  isEditing: boolean = false;
 
   constructor(public canvas: HTMLElement) {
     this.notesZone = canvas.querySelector('#notes-zone') as HTMLElement;

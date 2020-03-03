@@ -18,8 +18,6 @@ class Note {
   noteElement: HTMLElement;
   resizingElement: HTMLElement;
   textArea: HTMLTextAreaElement;
-  isDragging: boolean = false;
-  isEditing: boolean = false;
   currentDroppable: HTMLElement | null = null;
   colors = [
     '#bfff25',
