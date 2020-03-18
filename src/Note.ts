@@ -43,7 +43,7 @@ class Note {
     public id: string = `f${(+new Date).toString(16)+Math.random()}`,
     color?: string
   ) {
-    this.store = LStorage.getInstance();
+    this.store = new LStorage();
     this.noteElement = document.createElement('div');
     this.noteElement.classList.add('note');
 
@@ -62,10 +62,6 @@ class Note {
 
     this.textArea = this.noteElement.querySelector('.text');
 
-    this.resizeNoteHandler = this.resizeNoteHandler.bind(this);
-    this.textInputHandler = this.textInputHandler.bind(this);
-    this.moveNote = this.moveNote.bind(this);
-
     this.parentElement.appendChild(this.noteElement);
     this.resizingElement = this.noteElement.querySelector('.resize') as HTMLElement;
     this.resizingElement.addEventListener('mousedown', this.resizeNoteHandler);
@@ -73,7 +69,7 @@ class Note {
     this.textArea.addEventListener('keyup', this.textInputHandler);
   }
 
-  moveNote(event: MouseEvent) {
+  moveNote = (event: MouseEvent) => {
 
     if (event.target === this.resizingElement)
       return;
@@ -142,9 +138,9 @@ class Note {
     this.noteElement.addEventListener('mouseup', onMouseUp);
     this.noteElement.addEventListener('dragstart', () => false);
 
-  }
+  };
 
-  resizeNoteHandler(event: MouseEvent) {
+  resizeNoteHandler = (event: MouseEvent) => {
     this.onDragSet(true);
     const noteWidth = this.noteElement.offsetWidth;
     const noteHeight = this.noteElement.offsetHeight;
@@ -163,34 +159,34 @@ class Note {
     document.addEventListener('mousemove', onNoteResize);
     document.addEventListener('mouseup', onMouseUp);
     this.noteElement.addEventListener('mousedown', this.moveNote);
-  }
+  };
 
-  textInputHandler(event: InputEvent) {
+  textInputHandler = (event: InputEvent) => {
     this.text = (event.target as HTMLTextAreaElement).value;
     this.store.updateNote(this.getNoteData());
-  }
+  };
 
-  setPosition(position: Vector) {
+  setPosition = (position: Vector) => {
     this.position = position;
     this.noteElement.style.left = position.x + 'px';
     this.noteElement.style.top = position.y + 'px';
     this.store.updateNote(this.getNoteData());
   };
 
-  setSize(size: Vector) {
+  setSize = (size: Vector) => {
     this.size = size;
     this.noteElement.style.width = size.x + 'px';
     this.noteElement.style.height = size.y + 'px';
     this.store.updateNote(this.getNoteData());
-  }
+  };
 
-  removeNote() {
+  removeNote = () => {
     this.store.removeNote(this.id);
     this.resizingElement.removeEventListener('mousedown', this.resizeNoteHandler);
     this.parentElement.removeChild(this.noteElement);
-  }
+  };
 
-  getNoteData(): NoteData {
+  getNoteData = (): NoteData => {
     return {
       id: this.id,
       color: this.color,
@@ -201,7 +197,7 @@ class Note {
       },
       text: this.text
     }
-  }
+  };
 }
 
 export default Note;

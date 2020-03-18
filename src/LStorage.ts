@@ -5,27 +5,23 @@ class LStorage {
   protected static _instance: LStorage;
 
   constructor() {
-    if (!this.storageAvailable()) {
-      throw new Error("Instantiation failed: storage is not available");
+
+    if (!LStorage.storageAvailable()) {
+      throw new Error("Storage is not available");
     }
-    if (LStorage._instance) {
-      throw new Error("Instantiation failed: use Singleton.getInstance() instead of new.");
-    }
-    LStorage._instance = this;
 
     if (!this.getNotes()) {
       localStorage.setItem('notes', '[]');
     }
-  }
 
-  public static getInstance(): LStorage {
     if (LStorage._instance) {
       return LStorage._instance;
     }
-    return LStorage._instance = new LStorage;
+
+    LStorage._instance = this;
   }
 
-  storageAvailable(): boolean {
+  private static storageAvailable(): boolean {
     let storage;
     try {
       storage = window['localStorage'];
@@ -50,6 +46,10 @@ class LStorage {
     }
   }
 
+  private static setItemToLocalStorage(notes: NoteData[]) {
+    localStorage.setItem('notes', JSON.stringify(notes));
+  }
+
   getNotes(): NoteData[] {
     const notesString = localStorage.getItem('notes');
     return JSON.parse(notesString);
@@ -58,21 +58,21 @@ class LStorage {
   addNote(noteData: NoteData) {
     const notes = this.getNotes();
     notes.push(noteData);
-    localStorage.setItem('notes', JSON.stringify(notes));
+    LStorage.setItemToLocalStorage(notes);
   }
 
   updateNote(noteData: NoteData) {
     const notes = this.getNotes();
     const noteIndex = notes.findIndex(note => note.id === noteData.id);
     notes[noteIndex] = noteData;
-    localStorage.setItem('notes', JSON.stringify(notes));
+    LStorage.setItemToLocalStorage(notes);
   }
 
   removeNote(id: string) {
-    const notes = this.getNotes();
+    const notes: NoteData[] = this.getNotes();
     const noteIndex = notes.findIndex( note => note.id === id);
     notes.splice(noteIndex, 1);
-    localStorage.setItem('notes', JSON.stringify(notes));
+    LStorage.setItemToLocalStorage(notes);
   }
 }
 

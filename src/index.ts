@@ -15,8 +15,6 @@ class StickyNotes {
 
     this.store = new LStorage();
 
-    this.addNote = this.addNote.bind(this);
-
     this.notesZone.addEventListener('mouseup', (event: MouseEvent) => {
       if (event.button === 0) {
         if (this.isDragging)
@@ -40,7 +38,7 @@ class StickyNotes {
     })
   }
 
-  addNote(noteData: NoteData, cb?: (note: Note) => void) {
+  addNote = (noteData: NoteData, cb?: (note: Note) => void) => {
     const note = new Note(
       this.notesZone,
       this.onDragSet,

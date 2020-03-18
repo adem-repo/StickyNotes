@@ -2,7 +2,8 @@
   "devDependencies": {
     "browser-sync": "^2.26.7",
     "ts-loader": "^6.2.1",
-    "typescript": "^3.8.2"
+    "typescript": "^3.8.2",
+    "webpack": "^4.42.0"
   },
   "name": "alm-task",
   "version": "1.0.0",
