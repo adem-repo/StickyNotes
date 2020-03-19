@@ -46,7 +46,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "cross-env TS_NODE_PROJECT=\"tsconfig.json\" webpack --watch"
+    "build": "cross-env TS_NODE_PROJECT=\"tsconfig.json\" webpack --watch",
+    "bs": "browser-sync start --server -f \"./public\" --serveStatic \"./public\" --no-open"
   },
   "author": "Alexander Dementyev",
   "license": "ISC",

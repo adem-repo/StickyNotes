@@ -36,9 +36,10 @@ html, body {
     width: 200px;
     height: 150px;
     background-color: white;
-    border: 5px solid gainsboro;
+    border: 1px solid gainsboro;
     user-select: none;
     box-sizing: border-box;
+    border-radius: 10px 10px 0 10px;
 }
 
 #canvas #notes-zone .note .note-inner {
@@ -51,11 +52,11 @@ html, body {
 
 #canvas #notes-zone .note .resize {
     position: absolute;
-    width: 10px;
-    height: 10px;
+    width: 9px;
+    height: 9px;
     background-color: grey;
-    bottom: -7px;
-    right: -7px;
+    bottom: -5px;
+    right: -5px;
     cursor: nwse-resize;
 }
 
@@ -70,6 +71,8 @@ html, body {
     resize: none;
     font-family: sans-serif;
     padding: 8px;
+    box-shadow: none;
+    outline: none;
 }
 
 #canvas #trash-zone {
