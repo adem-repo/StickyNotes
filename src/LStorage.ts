@@ -55,7 +55,7 @@ class LStorage {
     return JSON.parse(notesString);
   }
 
-  addNote(noteData: NoteData) {
+  saveNote(noteData: NoteData) {
     const notes = this.getNotes();
     notes.push(noteData);
     LStorage.setItemToLocalStorage(notes);

@@ -22,7 +22,7 @@ class StickyNotes {
         if (!(event.target as HTMLElement).closest('.note'))
           this.addNote({
             position: { x: event.x, y: event.y }
-          }, (note) => this.store.addNote(note.getNoteData()))
+          }, (note) => this.store.saveNote(note.getNoteData()))
       }
     });
 
@@ -50,7 +50,7 @@ class StickyNotes {
       y: noteData.position.y
     });
     cb && cb(note);
-  }
+  };
 
   onDragSet(isDragging: boolean) {
     this.isDragging = isDragging;
