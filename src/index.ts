@@ -1,5 +1,6 @@
 'use strict';
 import Note, { NoteData } from './Note';
+import RemovingNoteThumbnail from './RemovingNoteThumbnail';
 import LStorage from './LStorage';
 
 class StickyNotes {
@@ -39,17 +40,34 @@ class StickyNotes {
   }
 
   addNote = (noteData: NoteData, cb?: (note: Note) => void) => {
-    const note = new Note(
-      this.notesZone,
-      this.onDragSet,
-      noteData.text,
-      noteData.id,
-      noteData.color);
+    const note = new Note({
+      onDragSet: this.onDragSet,
+      onRemove: this.removeNote,
+      text: noteData.text,
+      id: noteData.id,
+      color: noteData.color
+    });
     note.setPosition({
       x: noteData.position.x,
       y: noteData.position.y
     });
+    this.notesZone.appendChild(note.noteElement);
     cb && cb(note);
+  };
+
+  removeNote = async (note: Note) => {
+    const noteThumbnail = new RemovingNoteThumbnail();
+    this.trashZone.appendChild(noteThumbnail.htmlElement);
+    note.noteElement.style.visibility = 'hidden';
+    try {
+      await noteThumbnail.removeOnTimeout();
+      this.trashZone.removeChild(noteThumbnail.htmlElement);
+      this.notesZone.removeChild(note.noteElement);
+      this.store.removeNote(note.id);
+    } catch (e) {
+      this.trashZone.removeChild(noteThumbnail.htmlElement);
+      note.noteElement.style.visibility = 'visible';
+    }
   };
 
   onDragSet(isDragging: boolean) {

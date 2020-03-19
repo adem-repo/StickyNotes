@@ -77,12 +77,27 @@ html, body {
 
 #canvas #trash-zone {
     flex-basis: 20%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: 100px;
     background-color: #fdd1cf;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
 #canvas #trash-zone i {
     opacity: 0.4;
+}
+
+#canvas #trash-zone .note-thumbnail {
+    display: flex;
+    border: 1px solid gainsboro;
+    border-radius: 5px;
+    background-color: white;
+    margin: 8px;
+    box-sizing: border-box;
+    font-size: 4em;
+    color: grey;
+}
+
+#canvas #trash-zone .note-thumbnail p {
+    margin: auto;
 }

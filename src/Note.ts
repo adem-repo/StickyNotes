@@ -8,13 +8,22 @@ export interface Vector {
 export interface NoteData {
   id?: string;
   text?: string;
-  position?: Vector;
+  position: Vector;
   size?: Vector;
   color?: string;
 }
 
+interface NoteProps {
+  onDragSet: (isDraggeable: boolean) => void,
+  onRemove: (note: Note) => void,
+  text: string,
+  id: string,
+  color?: string
+}
+
 class Note {
 
+  id: string;
   noteElement: HTMLElement;
   resizingElement: HTMLElement;
   textArea: HTMLTextAreaElement;
@@ -35,22 +44,19 @@ class Note {
   color: string;
   position: Vector;
   size: Vector;
+  text: string;
 
-  constructor(
-    public parentElement: HTMLElement,
-    public onDragSet: (isDraggeable: boolean) => void,
-    public text: string = '',
-    public id: string = `f${(+new Date).toString(16)+Math.random()}`,
-    color?: string
-  ) {
+  constructor(public props: NoteProps) {
+    this.id = props.id || `f${(+new Date).toString(16)+Math.random()}`;
+    this.text = props.text || '';
     this.store = new LStorage();
     this.noteElement = document.createElement('div');
     this.noteElement.classList.add('note');
 
     const rand = Math.floor(Math.random() * 10);
     this.color = this.colors[rand];
-    if (color)
-      this.color = color;
+    if (props.color)
+      this.color = props.color;
 
     this.noteElement.style.backgroundColor = this.color;
     this.noteElement.innerHTML = `
@@ -62,7 +68,6 @@ class Note {
 
     this.textArea = this.noteElement.querySelector('.text');
 
-    this.parentElement.appendChild(this.noteElement);
     this.resizingElement = this.noteElement.querySelector('.resize') as HTMLElement;
     this.resizingElement.addEventListener('mousedown', this.resizeNoteHandler);
     this.noteElement.addEventListener('mousedown', this.moveNote);
@@ -75,11 +80,11 @@ class Note {
       return;
 
     // Moving note to front
-    const notes = this.parentElement.querySelectorAll('.note') as NodeListOf<HTMLElement>;
-    for (let i = 0; i < notes.length; ++i) {
-      notes[i].style.zIndex = '1';
-    }
-    this.noteElement.style.zIndex = '1000';
+    // const notes = this.parentElement.querySelectorAll('.note') as NodeListOf<HTMLElement>;
+    // for (let i = 0; i < notes.length; ++i) {
+    //   notes[i].style.zIndex = '1';
+    // }
+    // this.noteElement.style.zIndex = '1000';
     //
 
     let shiftX = event.clientX - this.noteElement.getBoundingClientRect().left;
@@ -124,7 +129,7 @@ class Note {
 
     const onMouseUp = () => {
       document.removeEventListener('mousemove', onMouseMove);
-      this.onDragSet(false);
+      this.props.onDragSet(false);
       if (this.currentDroppable) {
         this.removeNote();
         leaveDroppable(this.currentDroppable);
@@ -141,7 +146,7 @@ class Note {
   };
 
   resizeNoteHandler = (event: MouseEvent) => {
-    this.onDragSet(true);
+    this.props.onDragSet(true);
     const noteWidth = this.noteElement.offsetWidth;
     const noteHeight = this.noteElement.offsetHeight;
     const startX = event.pageX;
@@ -153,7 +158,7 @@ class Note {
       })
     };
     const onMouseUp = () => {
-      this.onDragSet(false);
+      this.props.onDragSet(false);
       document.removeEventListener('mousemove', onNoteResize);
     };
     document.addEventListener('mousemove', onNoteResize);
@@ -181,9 +186,8 @@ class Note {
   };
 
   removeNote = () => {
-    this.store.removeNote(this.id);
     this.resizingElement.removeEventListener('mousedown', this.resizeNoteHandler);
-    this.parentElement.removeChild(this.noteElement);
+    this.props.onRemove(this);
   };
 
   getNoteData = (): NoteData => {
