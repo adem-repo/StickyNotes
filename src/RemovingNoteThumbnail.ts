@@ -1,16 +1,27 @@
 class RemovingNoteThumbnail {
 
   htmlElement: HTMLElement;
+  counterElement: HTMLElement;
+  textElement: HTMLElement;
   interval: number;
   count: number = 5;
+  isPaused = false;
 
-  constructor() {
+  constructor(public color: string, public text: string) {
     this.htmlElement = document.createElement('div');
-    this.htmlElement.innerHTML = `
-      <p>${this.count}</p>
-    `;
     this.htmlElement.classList.add('note-thumbnail');
+    this.htmlElement.style.backgroundColor = color;
 
+    this.counterElement = document.createElement('p');
+    this.counterElement.classList.add('counter');
+    this.counterElement.innerText = this.count.toString();
+
+    this.textElement = document.createElement('p');
+    this.textElement.classList.add('text');
+    this.textElement.innerText = text;
+
+    this.htmlElement.append(this.counterElement, this.textElement);
+    this.htmlElement.addEventListener('hover', this.hoverHandler);
   }
 
   removeOnTimeout = () => {
@@ -22,23 +33,25 @@ class RemovingNoteThumbnail {
       this.interval = setInterval(() => {
         if (this.count <= 0) {
           clearInterval(this.interval);
+          this.htmlElement.removeEventListener('hover', this.hoverHandler);
           resolve();
         }
-        this.htmlElement.innerHTML = `<p>${this.count.toString()}</p>`;
+        this.counterElement.innerText = this.count.toString();
         --this.count;
       }, 1000)
     });
   };
 
+  hoverHandler = () => {
+    this.isPaused = true;
+  };
+
   breakOnClick = (reject: (reason?: any) => void) => {
-    const clickHandler = () => {
+    this.htmlElement.addEventListener('click', () => {
       clearInterval(this.interval);
       reject();
-    };
-    this.htmlElement.addEventListener('click', clickHandler);
+    });
   }
-
-
 }
 
 export default RemovingNoteThumbnail;

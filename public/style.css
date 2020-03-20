@@ -4,6 +4,7 @@ html, body {
     min-width: 1024px;
     height: 100%;
     margin: 0;
+    overflow: hidden;
 }
 
 .wrapper {
@@ -15,9 +16,8 @@ html, body {
 #canvas {
     box-sizing: border-box;
     height: 100%;
-    display: flex;
-    flex-direction: row;
-
+    display: grid;
+    grid-template-columns: 80% 20%;
 }
 
 #canvas #notes-zone,
@@ -29,6 +29,7 @@ html, body {
     position: relative;
     flex-basis: 80%;
     background-color: #f9f7d8;
+    z-index: 2;
 }
 
 #canvas #notes-zone .note {
@@ -76,28 +77,67 @@ html, body {
 }
 
 #canvas #trash-zone {
+    position: relative;
     flex-basis: 20%;
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, 50%);
     grid-auto-rows: 100px;
     background-color: #fdd1cf;
+    z-index: 1;
 }
 
 #canvas #trash-zone i {
+    width: 40px;
+    height: 40px;
     opacity: 0.4;
+    position: absolute;
+    top: 40%;
+    bottom: 0;
+    right: 0;
+    padding: 20px;
+    background-color: rgb(136, 159, 166);
+    text-align: center;
+    border-radius: 50%;
+    z-index: 2;
+    line-height: 40px;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 #canvas #trash-zone .note-thumbnail {
+    position: relative;
     display: flex;
     border: 1px solid gainsboro;
     border-radius: 5px;
     background-color: white;
     margin: 8px;
+    padding: 3px;
     box-sizing: border-box;
-    font-size: 4em;
     color: grey;
+    cursor: pointer;
 }
 
 #canvas #trash-zone .note-thumbnail p {
+    overflow: hidden;
+}
+
+#canvas #trash-zone .note-thumbnail .counter {
+    position: absolute;
+    right: 5px;
     margin: auto;
+    font-weight: bold;
+    width: 15px;
+    height: 15px;
+    background-color: #dfdfdf;
+    text-align: center;
+    border-radius: 50%;
+    padding: 1px;
+    border: 1px solid;
+    line-height: 100%;
+    opacity: 0.7;
+}
+
+#canvas #trash-zone .note-thumbnail .text {
+    font-size: .1em;
+    word-wrap: break-word;
 }

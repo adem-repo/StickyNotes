@@ -15,7 +15,7 @@ export interface NoteData {
 
 interface NoteProps {
   onDragSet: (isDraggeable: boolean) => void,
-  onRemove: (note: Note) => void,
+  onRemove: (note: Note) => Promise<boolean>,
   text: string,
   id: string,
   color?: string
@@ -45,6 +45,7 @@ class Note {
   position: Vector;
   size: Vector;
   text: string;
+  startDragPosition: Vector;
 
   constructor(public props: NoteProps) {
     this.id = props.id || `f${(+new Date).toString(16)+Math.random()}`;
@@ -78,6 +79,8 @@ class Note {
 
     if (event.target === this.resizingElement)
       return;
+
+    this.startDragPosition = this.position;
 
     // Moving note to front
     // const notes = this.parentElement.querySelectorAll('.note') as NodeListOf<HTMLElement>;
@@ -116,7 +119,7 @@ class Note {
       if (!elemBelow) return;
 
       let droppableBelow: HTMLElement | null = elemBelow.closest('#trash-zone');
-      if (this.currentDroppable != droppableBelow) {
+      if (this.currentDroppable !== droppableBelow) {
         if (this.currentDroppable) {
           leaveDroppable(this.currentDroppable);
         }
@@ -135,11 +138,14 @@ class Note {
         leaveDroppable(this.currentDroppable);
       }
       this.noteElement.removeEventListener('mouseup', onMouseUp);
+      document.removeEventListener('mouseup', onMouseUp);
+      this.currentDroppable = null;
     };
 
     moveAt(event.pageX, event.pageY);
 
     document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
     this.noteElement.addEventListener('mouseup', onMouseUp);
     this.noteElement.addEventListener('dragstart', () => false);
 
@@ -185,9 +191,12 @@ class Note {
     this.store.updateNote(this.getNoteData());
   };
 
-  removeNote = () => {
-    this.resizingElement.removeEventListener('mousedown', this.resizeNoteHandler);
-    this.props.onRemove(this);
+  removeNote = async () => {
+    const isRemoved: boolean = await this.props.onRemove(this);
+    if (isRemoved) {
+      this.resizingElement.removeEventListener('mousedown', this.resizeNoteHandler);
+
+    }
   };
 
   getNoteData = (): NoteData => {

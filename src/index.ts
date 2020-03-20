@@ -8,7 +8,7 @@ class StickyNotes {
   notesZone: HTMLElement;
   trashZone: HTMLElement;
   store: LStorage;
-  isDragging: boolean = false;
+  isDragging = false;
 
   constructor(public canvas: HTMLElement) {
     this.notesZone = canvas.querySelector('#notes-zone') as HTMLElement;
@@ -56,18 +56,22 @@ class StickyNotes {
   };
 
   removeNote = async (note: Note) => {
-    const noteThumbnail = new RemovingNoteThumbnail();
+    const noteThumbnail = new RemovingNoteThumbnail(note.color, note.text);
     this.trashZone.appendChild(noteThumbnail.htmlElement);
     note.noteElement.style.visibility = 'hidden';
+    let isRemoved = false;
     try {
       await noteThumbnail.removeOnTimeout();
       this.trashZone.removeChild(noteThumbnail.htmlElement);
       this.notesZone.removeChild(note.noteElement);
       this.store.removeNote(note.id);
+      isRemoved = true;
     } catch (e) {
       this.trashZone.removeChild(noteThumbnail.htmlElement);
       note.noteElement.style.visibility = 'visible';
+      note.setPosition(note.startDragPosition);
     }
+    return isRemoved;
   };
 
   onDragSet(isDragging: boolean) {
