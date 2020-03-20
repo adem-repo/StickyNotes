@@ -1,2 +1,2 @@
 # StickyNotes
-Notes application on vanilla JavaScript❤️
+Notes application on JavaScript❤️ + TS;
