@@ -23,29 +23,21 @@ interface NoteProps {
 
 class Note {
 
-  id: string;
+  readonly id: string;
   noteElement: HTMLElement;
-  resizingElement: HTMLElement;
-  textArea: HTMLTextAreaElement;
-  currentDroppable: HTMLElement | null = null;
-  colors = [
-    '#bfff25',
-    '#0cffc6',
-    '#ff9cbf',
-    '#ffc92a',
-    '#97b7ff',
-    '#daa0ff',
-    '#69ff72',
-    '#c9fff6',
-    '#bbbeff',
-    '#fcfeff',
-  ];
-  store: LStorage;
-  color: string;
-  position: Vector;
-  size: Vector;
+  private readonly resizingElement: HTMLElement;
+  private textArea: HTMLTextAreaElement;
+  private currentDroppable: HTMLElement | null = null;
+  private store: LStorage;
+  readonly color: string;
+  private position: Vector;
+  private size: Vector;
   text: string;
   startDragPosition: Vector;
+  private colors = [
+    '#bfff25', '#0cffc6', '#ff9cbf', '#ffc92a', '#97b7ff',
+    '#daa0ff', '#69ff72', '#c9fff6', '#bbbeff', '#fcfeff',
+  ];
 
   constructor(public props: NoteProps) {
     this.id = props.id || `f${(+new Date).toString(16)+Math.random()}`;
@@ -130,7 +122,7 @@ class Note {
       }
     };
 
-    const onMouseUp = () => {
+    const onMouseUp = async () => {
       document.removeEventListener('mousemove', onMouseMove);
       this.props.onDragSet(false);
       if (this.currentDroppable) {
@@ -157,19 +149,39 @@ class Note {
     const noteHeight = this.noteElement.offsetHeight;
     const startX = event.pageX;
     const startY = event.pageY;
+
+    let prevWidth = noteWidth;
+    let prevHeight = noteHeight;
+
     const onNoteResize = (event: MouseEvent) => {
+      let nextWidth = noteWidth + (event.pageX - startX);
+      let nextHeight = noteHeight + (event.pageY - startY);
+
+      if (nextWidth < 200) {
+        nextWidth = prevWidth;
+      }
+
+      if (nextHeight < 150) {
+        nextHeight = prevHeight;
+      }
+
+      prevWidth = nextWidth;
+      prevHeight = nextHeight;
+
       this.setSize({
-        x: noteWidth + (event.pageX - startX),
-        y: noteHeight + (event.pageY - startY),
-      })
+        x: nextWidth,
+        y: nextHeight,
+      });
     };
+
     const onMouseUp = () => {
       this.props.onDragSet(false);
       document.removeEventListener('mousemove', onNoteResize);
     };
+
     document.addEventListener('mousemove', onNoteResize);
-    document.addEventListener('mouseup', onMouseUp);
-    this.noteElement.addEventListener('mousedown', this.moveNote);
+    document.addEventListener('mouseup', onMouseUp, { once: true });
+    // this.noteElement.addEventListener('mousedown', this.moveNote);
   };
 
   textInputHandler = (event: InputEvent) => {
@@ -195,7 +207,6 @@ class Note {
     const isRemoved: boolean = await this.props.onRemove(this);
     if (isRemoved) {
       this.resizingElement.removeEventListener('mousedown', this.resizeNoteHandler);
-
     }
   };
 

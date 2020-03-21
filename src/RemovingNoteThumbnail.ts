@@ -3,6 +3,7 @@ class RemovingNoteThumbnail {
   htmlElement: HTMLElement;
   counterElement: HTMLElement;
   textElement: HTMLElement;
+  restoreElement: HTMLElement;
   interval: number;
   count: number = 5;
   isPaused = false;
@@ -20,7 +21,11 @@ class RemovingNoteThumbnail {
     this.textElement.classList.add('text');
     this.textElement.innerText = text;
 
-    this.htmlElement.append(this.counterElement, this.textElement);
+    this.restoreElement = document.createElement('div');
+    this.restoreElement.classList.add('restore');
+    this.restoreElement.innerText = 'restore';
+
+    this.htmlElement.append(this.counterElement, this.textElement, this.restoreElement);
     this.htmlElement.addEventListener('hover', this.hoverHandler);
   }
 

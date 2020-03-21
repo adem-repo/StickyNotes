@@ -5,6 +5,7 @@ html, body {
     height: 100%;
     margin: 0;
     overflow: hidden;
+    font-family: Roboto, sans-serif;
 }
 
 .wrapper {
@@ -140,4 +141,20 @@ html, body {
 #canvas #trash-zone .note-thumbnail .text {
     font-size: .1em;
     word-wrap: break-word;
+}
+
+#canvas #trash-zone .note-thumbnail .restore {
+    position: absolute;
+    font-size: 1.5em;
+    width: calc(100% - 3px * 2);
+    height: calc(100% - 3px * 2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 1s;
+}
+
+#canvas #trash-zone .note-thumbnail:hover .restore {
+    opacity: 1;
 }
