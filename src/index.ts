@@ -1,5 +1,6 @@
 'use strict';
 import Note, { NoteData } from './Note';
+import RemovingNoteThumbnail from './RemovingNoteThumbnail';
 import LStorage from './LStorage';
 
 class StickyNotes {
@@ -7,7 +8,7 @@ class StickyNotes {
   notesZone: HTMLElement;
   trashZone: HTMLElement;
   store: LStorage;
-  isDragging: boolean = false;
+  isDragging = false;
 
   constructor(public canvas: HTMLElement) {
     this.notesZone = canvas.querySelector('#notes-zone') as HTMLElement;
@@ -39,17 +40,38 @@ class StickyNotes {
   }
 
   addNote = (noteData: NoteData, cb?: (note: Note) => void) => {
-    const note = new Note(
-      this.notesZone,
-      this.onDragSet,
-      noteData.text,
-      noteData.id,
-      noteData.color);
+    const note = new Note({
+      onDragSet: this.onDragSet,
+      onRemove: this.removeNote,
+      text: noteData.text,
+      id: noteData.id,
+      color: noteData.color
+    });
     note.setPosition({
       x: noteData.position.x,
       y: noteData.position.y
     });
+    this.notesZone.appendChild(note.noteElement);
     cb && cb(note);
+  };
+
+  removeNote = async (note: Note) => {
+    const noteThumbnail = new RemovingNoteThumbnail(note.color, note.text);
+    this.trashZone.appendChild(noteThumbnail.htmlElement);
+    note.noteElement.style.visibility = 'hidden';
+    let isRemoved = false;
+    try {
+      await noteThumbnail.removeOnTimeout();
+      this.trashZone.removeChild(noteThumbnail.htmlElement);
+      this.notesZone.removeChild(note.noteElement);
+      this.store.removeNote(note.id);
+      isRemoved = true;
+    } catch (e) {
+      this.trashZone.removeChild(noteThumbnail.htmlElement);
+      note.noteElement.style.visibility = 'visible';
+      note.setPosition(note.startDragPosition);
+    }
+    return isRemoved;
   };
 
   onDragSet(isDragging: boolean) {
